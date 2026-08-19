@@ -1,11 +1,9 @@
 # Tree Height-DBH Allometry Across 24 Tropical Forest Plots (ForestGEO Panama)
 
-Adapted from the same idea as a La Molina University master's thesis on
-site quality in Peruvian *Guazuma crinita* plantations (which is not
-publicly downloadable) -- here applied to real, open, tropical forest
-plot data from a different network and country, asking the same kind
-of question: **does the relationship between tree size measurements
-vary meaningfully by site/plot?**
+Height-diameter allometric modeling across 24 real ForestGEO forest
+plots in Panama, asking a core forestry question: **does the
+relationship between tree size measurements vary meaningfully by
+site/plot?**
 
 ## Data source
 
@@ -29,8 +27,7 @@ Download: https://smithsonian.figshare.com/ndownloader/articles/24954204/version
    power-law height-diameter model (height = a * dbh^b) via log-log
    linear regression, independently per plot and pooled. Real site
    variation should show up as different fitted exponents/R2 across
-   plots -- this is the direct, open-data analog of "site quality
-   affects growth" from the thesis this project takes inspiration from.
+   plots.
 4. **ML benchmark with the leakage lesson from `crop-yield-ml-benchmark`
    applied to new data** (`04_ml_groupkfold_benchmark.py`): Random
    Forest under naive KFold (mixes trees from the same plot across
@@ -51,14 +48,41 @@ python scripts/04_ml_groupkfold_benchmark.py
 python scripts/05_compare_results.py
 ```
 
+## Results (real data: 5,107 trees, 24 plots, after dropping 2 rows with missing DBH/height)
+
+Pooled model: `height = 0.833 * dbh^0.533` (R2 = 0.579)
+
+Per-plot exponent (b) ranges from 0.281 (P25) to 0.664 (P18); per-plot
+R2 ranges from 0.324 (P25) to 0.840 (P24) -- a wide enough spread to
+say plots genuinely differ in their height-diameter relationship, not
+just noise.
+
+Random Forest DBH-only model, naive KFold(5) vs GroupKFold-by-plot:
+
+| CV scheme | R2 (mean +/- std) |
+|---|---|
+| Naive KFold | 0.696 +/- 0.019 |
+| GroupKFold-by-plot | 0.671 +/- 0.055 |
+
+Gap = 0.024. Smaller than the dramatic gap shown on synthetic data in
+`tests/run_smoke_test.py` (0.654 vs 0.012, engineered on purpose to
+make the effect obvious) -- here the model only sees DBH, not plot
+identity, so the leakage is real but modest: same-plot trees share
+unmeasured site effects (soil, competition, microclimate) that
+correlate their DBH-height residuals even without an explicit plot
+feature. Honest finding either way: naive CV is optimistic, just not
+catastrophically so on this dataset.
+
+See `reports/figures/summary.png` for the full per-plot breakdown.
+
 ## Note on this repo's state
 
-This project was scaffolded and logic-tested against **synthetic data
-matching the documented ForestGEO column structure** (see
-`tests/run_smoke_test.py`) -- not yet run against the real download.
-Column names are detected defensively (`scripts/_columns.py`) rather
-than hard-coded, but verify `01_explore_data.py`'s output against real
-data before trusting the modeling scripts' results.
+Ran end-to-end against the real Smithsonian ForestGEO download (see
+Results above). `tests/run_smoke_test.py` remains in the repo as a
+fast synthetic-data regression check, not a substitute for the real
+run. Column names are detected defensively (`scripts/_columns.py`)
+rather than hard-coded -- verify `01_explore_data.py`'s output first
+if you rerun this against a different ForestGEO release.
 
 ## Stack
 
