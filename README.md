@@ -1,7 +1,7 @@
 # Tree Height-DBH Allometry Across 24 Tropical Forest Plots (ForestGEO Panama)
 
 Height-diameter allometric modeling across 24 real ForestGEO forest
-plots in Panama, asking a core forestry question: **does the
+plots in Panama, asking a core forestry question: Does the
 relationship between tree size measurements vary meaningfully by
 site/plot?
 
