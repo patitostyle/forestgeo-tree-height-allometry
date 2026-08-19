@@ -3,7 +3,7 @@
 Height-diameter allometric modeling across 24 real ForestGEO forest
 plots in Panama, asking a core forestry question: **does the
 relationship between tree size measurements vary meaningfully by
-site/plot?**
+site/plot?
 
 ## Data source
 
